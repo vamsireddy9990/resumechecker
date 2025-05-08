@@ -18,23 +18,23 @@ st.markdown("""
         margin: 0 auto;
     }
     .stButton button {
-        background-color: #4CAF50;
+        background-color: #FF4B4B;
         color: white;
-        padding: 15px 30px;
-        font-size: 18px;
         border-radius: 10px;
-        border: none;
-        transition: all 0.3s;
+        padding: 0.5rem 2rem;
+        font-weight: bold;
     }
-    .stButton button:hover {
-        background-color: #45a049;
-        transform: translateY(-2px);
-    }
-    .css-1d391kg {
-        padding: 2rem 1rem;
+    .stTextArea textarea {
+        border-radius: 10px;
+        border: 2px solid #ccc;
     }
     </style>
 """, unsafe_allow_html=True)
+
+# Initialize Groq client
+client = Groq(
+    api_key=st.secrets["GROQ_API_KEY"]
+)
 
 def extract_text_from_pdf(pdf_file):
     pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -44,10 +44,6 @@ def extract_text_from_pdf(pdf_file):
     return text
 
 def analyze_resume(resume_text, job_description):
-    client = Groq(
-        api_key='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'
-    )
-    
     prompt = f"""
     Analyze the following resume against the job description:
     
@@ -62,31 +58,36 @@ def analyze_resume(resume_text, job_description):
     2. Areas of improvement or missing skills
     3. Specific suggestions to improve the resume
     4. Overall match percentage
-    5. Recommendations for better alignment with the role
     """
     
-    chat_completion = client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}],
+    response = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
         model="llama-guard-3-8b",
-        temperature=0.7,
+        temperature=0.5,
+        max_tokens=2048
     )
     
-    return chat_completion.choices[0].message.content
+    return response.choices[0].message.content
 
-# Header
+# App header
 st.title("🎯 Smart Resume Analyzer")
-st.markdown("### Match your resume against your dream job description")
+st.markdown("### Upload your resume and job description for detailed analysis")
 
 # Create two columns
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown("### 📄 Upload Your Resume")
-    uploaded_file = st.file_uploader("Choose your resume (PDF format)", type="pdf")
+    st.markdown("#### 📄 Upload Resume (PDF)")
+    uploaded_file = st.file_uploader("Choose your resume", type="pdf")
 
 with col2:
-    st.markdown("### 💼 Job Description")
-    job_description = st.text_area("Paste the job description here", height=300)
+    st.markdown("#### 💼 Job Description")
+    job_description = st.text_area("Paste the job description here", height=200)
 
 # Analysis button
 if st.button("🔍 Analyze Resume"):
@@ -101,18 +102,41 @@ if st.button("🔍 Analyze Resume"):
                 
                 # Display results in an organized manner
                 st.markdown("## 📊 Analysis Results")
-                st.markdown(analysis)
                 
+                # Create tabs for different sections
+                tab1, tab2, tab3 = st.tabs(["Strengths", "Areas for Improvement", "Suggestions"])
+                
+                # Split the analysis into sections (assuming the API returns formatted text)
+                sections = analysis.split("\n\n")
+                
+                with tab1:
+                    st.markdown("### 💪 Key Strengths")
+                    st.write(sections[0] if len(sections) > 0 else "No strengths identified")
+                
+                with tab2:
+                    st.markdown("### 🎯 Areas for Improvement")
+                    st.write(sections[1] if len(sections) > 1 else "No improvements suggested")
+                
+                with tab3:
+                    st.markdown("### 💡 Suggestions")
+                    st.write(sections[2] if len(sections) > 2 else "No specific suggestions")
+                
+                # Display match percentage if available
+                if len(sections) > 3:
+                    st.markdown("### 📈 Overall Match")
+                    st.progress(float(sections[3].strip("%"))/100 if "%" in sections[3] else 0.5)
+                    
             except Exception as e:
-                st.error(f"An error occurred: {str(e)}")
+                st.error(f"An error occurred during analysis: {str(e)}")
     else:
-        st.warning("Please upload your resume and provide a job description.")
+        st.warning("Please upload a resume and provide a job description.")
 
 # Footer
 st.markdown("---")
-st.markdown("### 💡 Tips")
-st.markdown("""
-- Make sure your resume is in PDF format
-- Provide a detailed job description for better analysis
-- The analysis takes into account both technical skills and soft skills
+st.markdown("### How it works")
+st.write("""
+1. Upload your resume in PDF format
+2. Paste the job description you're interested in
+3. Click 'Analyze Resume' to get detailed insights
+4. Review the analysis to improve your application
 """)

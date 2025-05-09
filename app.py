@@ -17,13 +17,28 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Load environment variables
-load_dotenv()
+# Load environment variables with robust error handling
+print("Current working directory:", os.getcwd())
+try:
+    # Try to load from .env file
+    load_dotenv(encoding='utf-8')
+    api_key = os.getenv('ANTHROPIC_API_KEY')
+    
+    # If not found in .env, check if it's set directly in environment
+    if not api_key:
+        api_key = os.environ.get('ANTHROPIC_API_KEY')
+    
+    print("API Key found:", "Yes" if api_key else "No")
+    print("API Key value:", api_key[:10] + "..." if api_key else "None")
 
-# Initialize Anthropic client
-api_key = os.getenv('ANTHROPIC_API_KEY')
+except Exception as e:
+    print("Error loading .env:", str(e))
+    # Fallback to direct environment variable
+    api_key = os.environ.get('ANTHROPIC_API_KEY')
+
 if not api_key:
-    st.sidebar.error("API key not found in .env file")
+    st.error("Anthropic API key not found. Please check your .env file or environment variables.")
+    st.info("Make sure your .env file exists and contains: ANTHROPIC_API_KEY=your_key_here")
 
 # Custom CSS for better UI
 st.markdown("""

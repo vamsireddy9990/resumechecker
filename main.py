@@ -33,7 +33,7 @@ st.markdown("""
 
 # Initialize Groq client
 client = Groq(
-    api_key=st.secrets["GROQ_API_KEY"]
+    api_key='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'
 )
 
 def extract_text_from_pdf(pdf_file):
@@ -111,15 +111,33 @@ if st.button("🔍 Analyze Resume"):
                 
                 with tab1:
                     st.markdown("### 💪 Key Strengths")
-                    st.write(sections[0] if len(sections) > 0 else "No strengths identified")
+                    strengths = sections[0] if len(sections) > 0 else "No strengths identified"
+                    st.write(strengths)
+                    if strengths != "No strengths identified":
+                        st.markdown("#### Suggested Improvements:")
+                        st.write("- Quantify your achievements with specific metrics")
+                        st.write("- Add more relevant keywords from the job description")
+                        st.write("- Highlight leadership experiences if applicable")
                 
                 with tab2:
                     st.markdown("### 🎯 Areas for Improvement")
-                    st.write(sections[1] if len(sections) > 1 else "No improvements suggested")
+                    improvements = sections[1] if len(sections) > 1 else "No improvements suggested"
+                    st.write(improvements)
+                    if improvements != "No improvements suggested":
+                        st.markdown("#### How to Address:")
+                        st.write("- Focus on developing skills mentioned in the job description")
+                        st.write("- Consider relevant certifications or training")
+                        st.write("- Add projects demonstrating required competencies")
                 
                 with tab3:
                     st.markdown("### 💡 Suggestions")
-                    st.write(sections[2] if len(sections) > 2 else "No specific suggestions")
+                    suggestions = sections[2] if len(sections) > 2 else "No specific suggestions"
+                    st.write(suggestions)
+                    if suggestions != "No specific suggestions":
+                        st.markdown("#### Action Items:")
+                        st.write("- Tailor your resume format for better readability")
+                        st.write("- Use action verbs to describe your experiences")
+                        st.write("- Ensure your resume aligns with industry standards")
                 
                 # Display match percentage if available
                 if len(sections) > 3:

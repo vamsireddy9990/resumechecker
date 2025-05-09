@@ -1,0 +1,95 @@
+# Resume Analysis Application PRD
+
+## Project Overview
+A Streamlit-based web application that analyzes resumes against job descriptions using the Groq API to provide detailed feedback and improvement suggestions.
+
+## Target Users
+- Job seekers looking to optimize their resumes
+- Career counselors and coaches
+- HR professionals and recruiters
+
+## Key Features
+
+### 1. User Interface
+- Modern, clean, and professional UI design using Streamlit
+- Responsive layout that works well on different screen sizes
+- Clear sections for resume upload and job description input
+- Progress indicators for analysis process
+- Well-organized results display
+
+### 2. File Upload
+- PDF file upload capability for resumes
+- File size validation and format checking
+- Preview capability for uploaded resume
+- Error handling for invalid files
+
+### 3. Job Description Input
+- Text area for pasting job description
+- Character count and validation
+- Clear placeholder text with example format
+- Input field validation
+
+### 4. Analysis Features
+- Integration with Groq API for advanced analysis
+- Comparison of resume content against job description
+- Skills matching analysis
+- Experience relevance assessment
+- Keyword identification and gaps
+
+### 5. Results Display
+- Clear strengths section highlighting matching qualifications
+- Detailed weaknesses section showing gaps
+- Actionable improvement suggestions
+- Visual elements (progress bars, charts) for match scoring
+- Option to download analysis report
+
+## Technical Requirements
+
+### Frontend
+- Streamlit framework for web interface
+- Custom CSS for enhanced styling
+- PDF processing libraries (PyPDF2 or similar)
+- Data visualization components
+
+### Backend
+- Python 3.8+ environment
+- Groq API integration
+- PDF text extraction capabilities
+- Error handling and logging
+
+### APIs and Services
+- Groq API for analysis
+- PDF processing service
+- Text analysis utilities
+
+## Performance Requirements
+- Resume analysis completion within 30 seconds
+- Support for PDF files up to 10MB
+- Concurrent user support
+- Responsive UI with no lag
+
+## Security Requirements
+- Secure file handling
+- No storage of sensitive information
+- API key protection
+- Input sanitization
+
+## Error Handling
+- Clear error messages for invalid files
+- Graceful handling of API failures
+- Input validation feedback
+- Connection error handling
+
+## Future Enhancements
+- Multiple resume format support
+- Batch processing capability
+- Save analysis history
+- Export results in different formats
+- Integration with job boards
+
+## Success Metrics
+- Analysis accuracy
+- User satisfaction with suggestions
+- UI responsiveness
+- Error rate in file processing
+- API response time 

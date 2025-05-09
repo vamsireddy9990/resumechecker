@@ -102,6 +102,14 @@ st.markdown("""
         box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
     }
 
+    /* Center button container */
+    .center-button {
+        display: flex;
+        justify-content: center;
+        margin: 3rem auto;
+        max-width: 500px;
+    }
+
     /* Button styling */
     .stButton > button {
         width: 100%;
@@ -115,14 +123,63 @@ st.markdown("""
         border: none;
         border-radius: 15px;
         cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+        animation: pulse 2s infinite;
         transition: all 0.3s ease;
     }
 
     .stButton > button:hover {
+        animation: none;
         transform: translateY(-2px);
         box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
         background: linear-gradient(45deg, #FF5252, #FF7676);
+    }
+
+    .stButton > button::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            45deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent
+        );
+        transform: rotate(45deg);
+        transition: all 0.3s ease;
+    }
+
+    .stButton > button:hover::before {
+        animation: shine 1.5s infinite;
+    }
+
+    /* Button animations */
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        50% {
+            transform: scale(1.02);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    @keyframes shine {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(100%) rotate(45deg);
+        }
     }
 
     /* Success message */
@@ -327,8 +384,8 @@ with col2:
     st.markdown("<p style='color: #666;'>Paste the job description you want to analyze against</p>", unsafe_allow_html=True)
     job_description = st.text_area("", height=200, placeholder="Paste the complete job description here...", label_visibility="collapsed")
 
-# Analysis button
-st.markdown("<div style='text-align: center; padding: 3rem 0;'>", unsafe_allow_html=True)
+# Center the button using custom HTML/CSS
+st.markdown("<div class='center-button'>", unsafe_allow_html=True)
 if st.button("🔍 Analyze Resume"):
     if uploaded_file is None:
         st.error("⚠️ Please upload a resume first!")

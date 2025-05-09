@@ -212,11 +212,17 @@ def analyze_resume(resume_text, job_description):
         client = anthropic.Anthropic(api_key=api_key)
         
         prompt = f"""Analyze the following resume against the job description. 
-        Provide a detailed analysis including:
+        Provide a comprehensive analysis including:
         1. Key strengths and matches
         2. Missing skills or qualifications
         3. Specific suggestions for improvement
         4. Overall match score (percentage)
+        5. ATS (Applicant Tracking System) compatibility score (percentage)
+        6. Detailed skills breakdown with proficiency levels
+        7. Missing important keywords from the job description
+        8. Action verbs analysis
+        9. Education and experience alignment
+        10. Format and presentation score
 
         Resume:
         {resume_text}
@@ -230,19 +236,39 @@ def analyze_resume(resume_text, job_description):
             "weaknesses": ["weakness1", "weakness2", ...],
             "suggestions": ["suggestion1", "suggestion2", ...],
             "match_score": percentage,
-            "skill_matches": {{"skill1": percentage, "skill2": percentage, ...}}
+            "ats_compatibility": percentage,
+            "skill_matches": {{"skill1": percentage, "skill2": percentage, ...}},
+            "missing_keywords": ["keyword1", "keyword2", ...],
+            "action_verbs": {{
+                "used": ["verb1", "verb2", ...],
+                "recommended": ["verb1", "verb2", ...]
+            }},
+            "education_alignment": {{
+                "score": percentage,
+                "feedback": "detailed feedback"
+            }},
+            "experience_alignment": {{
+                "score": percentage,
+                "feedback": "detailed feedback"
+            }},
+            "format_score": {{
+                "score": percentage,
+                "issues": ["issue1", "issue2", ...],
+                "positives": ["positive1", "positive2", ...]
+            }}
         }}
+        
+        Ensure the analysis is thorough and actionable. For missing keywords, focus on technical skills, qualifications, and industry-specific terms that appear in the job description but are absent in the resume.
         """
 
         try:
             response = client.messages.create(
-                model="claude-3-haiku-20240307",  # Updated to use available model
+                model="claude-3-haiku-20240307",
                 max_tokens=4096,
                 temperature=0.7,
                 messages=[{"role": "user", "content": prompt}]
             )
             
-            # Parse the response text as JSON
             try:
                 result = json.loads(response.content[0].text)
                 return result
@@ -320,38 +346,112 @@ if st.button("🔍 Analyze Resume"):
                     st.markdown("<div class='results-container'>", unsafe_allow_html=True)
                     st.markdown("<h2 style='text-align: center;'>📊 Analysis Results</h2>", unsafe_allow_html=True)
                     
-                    # Match score with improved styling
-                    st.markdown(f"""
-                        <div style='text-align: center; margin-bottom: 2rem;'>
-                            <h3>Overall Match Score</h3>
-                            <div class='match-score'>{analysis['match_score']}%</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    st.progress(analysis['match_score'] / 100)
+                    # Create three columns for the main scores
+                    score_col1, score_col2, score_col3 = st.columns(3)
+                    
+                    with score_col1:
+                        st.markdown("""
+                            <div style='text-align: center;'>
+                                <h3>Overall Match</h3>
+                                <div class='match-score'>{0}%</div>
+                            </div>
+                        """.format(analysis['match_score']), unsafe_allow_html=True)
+                        st.progress(analysis['match_score'] / 100)
+                    
+                    with score_col2:
+                        st.markdown("""
+                            <div style='text-align: center;'>
+                                <h3>ATS Compatibility</h3>
+                                <div class='match-score'>{0}%</div>
+                            </div>
+                        """.format(analysis['ats_compatibility']), unsafe_allow_html=True)
+                        st.progress(analysis['ats_compatibility'] / 100)
+                    
+                    with score_col3:
+                        st.markdown("""
+                            <div style='text-align: center;'>
+                                <h3>Format Score</h3>
+                                <div class='match-score'>{0}%</div>
+                            </div>
+                        """.format(analysis['format_score']['score']), unsafe_allow_html=True)
+                        st.progress(analysis['format_score']['score'] / 100)
                     
                     # Results in columns
-                    col1, col2, col3 = st.columns(3)
+                    col1, col2 = st.columns(2)
                     
                     with col1:
                         st.markdown("<h3 style='color: #28A745;'>✅ Strengths</h3>", unsafe_allow_html=True)
                         for strength in analysis['strengths']:
                             st.markdown(f"<div class='section-content'>• {strength}</div>", unsafe_allow_html=True)
                     
-                    with col2:
-                        st.markdown("<h3 style='color: #DC3545;'>❌ Areas for Improvement</h3>", unsafe_allow_html=True)
+                        st.markdown("<h3 style='color: #DC3545; margin-top: 20px;'>❌ Areas for Improvement</h3>", unsafe_allow_html=True)
                         for weakness in analysis['weaknesses']:
                             st.markdown(f"<div class='section-content'>• {weakness}</div>", unsafe_allow_html=True)
                     
-                    with col3:
+                    with col2:
                         st.markdown("<h3 style='color: #17A2B8;'>💡 Suggestions</h3>", unsafe_allow_html=True)
                         for suggestion in analysis['suggestions']:
                             st.markdown(f"<div class='section-content'>• {suggestion}</div>", unsafe_allow_html=True)
                     
-                    # Radar chart
-                    st.markdown("<h3 style='text-align: center; margin: 3rem 0 2rem 0;'>📊 Skills Match Analysis</h3>", unsafe_allow_html=True)
+                        st.markdown("<h3 style='color: #FD7E14; margin-top: 20px;'>🎯 Missing Keywords</h3>", unsafe_allow_html=True)
+                        for keyword in analysis['missing_keywords']:
+                            st.markdown(f"<div class='section-content'>• {keyword}</div>", unsafe_allow_html=True)
+                    
+                    # Action Verbs Analysis
+                    st.markdown("<h3 style='text-align: center; margin: 2rem 0;'>📝 Action Verbs Analysis</h3>", unsafe_allow_html=True)
+                    verb_col1, verb_col2 = st.columns(2)
+                    
+                    with verb_col1:
+                        st.markdown("<h4 style='color: #28A745;'>Used in Your Resume</h4>", unsafe_allow_html=True)
+                        for verb in analysis['action_verbs']['used']:
+                            st.markdown(f"<div class='section-content'>• {verb}</div>", unsafe_allow_html=True)
+                    
+                    with verb_col2:
+                        st.markdown("<h4 style='color: #17A2B8;'>Recommended Additions</h4>", unsafe_allow_html=True)
+                        for verb in analysis['action_verbs']['recommended']:
+                            st.markdown(f"<div class='section-content'>• {verb}</div>", unsafe_allow_html=True)
+                    
+                    # Education and Experience Alignment
+                    st.markdown("<h3 style='text-align: center; margin: 2rem 0;'>🎓 Education & Experience Alignment</h3>", unsafe_allow_html=True)
+                    edu_col1, edu_col2 = st.columns(2)
+                    
+                    with edu_col1:
+                        st.markdown("""
+                            <div style='text-align: center;'>
+                                <h4>Education Match</h4>
+                                <div class='match-score' style='font-size: 2.5rem !important;'>{0}%</div>
+                                <p>{1}</p>
+                            </div>
+                        """.format(analysis['education_alignment']['score'], analysis['education_alignment']['feedback']), unsafe_allow_html=True)
+                    
+                    with edu_col2:
+                        st.markdown("""
+                            <div style='text-align: center;'>
+                                <h4>Experience Match</h4>
+                                <div class='match-score' style='font-size: 2.5rem !important;'>{0}%</div>
+                                <p>{1}</p>
+                            </div>
+                        """.format(analysis['experience_alignment']['score'], analysis['experience_alignment']['feedback']), unsafe_allow_html=True)
+                    
+                    # Format Analysis
+                    st.markdown("<h3 style='text-align: center; margin: 2rem 0;'>📋 Format Analysis</h3>", unsafe_allow_html=True)
+                    format_col1, format_col2 = st.columns(2)
+                    
+                    with format_col1:
+                        st.markdown("<h4 style='color: #28A745;'>Positive Aspects</h4>", unsafe_allow_html=True)
+                        for positive in analysis['format_score']['positives']:
+                            st.markdown(f"<div class='section-content'>• {positive}</div>", unsafe_allow_html=True)
+                    
+                    with format_col2:
+                        st.markdown("<h4 style='color: #DC3545;'>Areas to Improve</h4>", unsafe_allow_html=True)
+                        for issue in analysis['format_score']['issues']:
+                            st.markdown(f"<div class='section-content'>• {issue}</div>", unsafe_allow_html=True)
+                    
+                    # Radar chart for skills
+                    st.markdown("<h3 style='text-align: center; margin: 2rem 0;'>📊 Skills Match Analysis</h3>", unsafe_allow_html=True)
                     fig = create_radar_chart(analysis['skill_matches'])
                     fig.update_layout(
-                        height=500,  # Increased height
+                        height=500,
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)',
                         polar=dict(
